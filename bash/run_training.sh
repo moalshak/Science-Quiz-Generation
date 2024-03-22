@@ -20,4 +20,4 @@ module load transformers
 module load datasets
 
 
-python unet.py 
+python questions-generator.py
