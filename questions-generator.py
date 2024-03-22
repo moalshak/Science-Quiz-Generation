@@ -25,7 +25,7 @@ def main():
     # question, distractor3, distractor1, distractor2, correct_answer, support
     def pre_process_data(data, tokenizer):
         # tokenize the data
-        inputs = tokenizer(data['support'], padding="max_length", truncation=True, max_length=max_input,
+        inputs = tokenizer(data['correct_answer'] + "\n" + data['support'], padding="max_length", truncation=True, max_length=max_input,
                            return_tensors="pt")
         targets = tokenizer(data['question'], padding="max_length", truncation=True, max_length=max_target,
                             return_tensors="pt")
@@ -45,7 +45,7 @@ def main():
         gradient_accumulation_steps=2,
         weight_decay=0.01,
         save_total_limit=2,
-        num_train_epochs=1,
+        num_train_epochs=32,
         predict_with_generate=True,
         eval_accumulation_steps=32,
         fp16=True  # available only with CUDA
