@@ -23,9 +23,11 @@ def main():
 
     # dataset has:
     # question, distractor3, distractor1, distractor2, correct_answer, support
-    def pre_process_data(data, tokenizer):
+    def pre_process_data(data):
+        answer_and_context = [correct_answer + " " + support for support, correct_answer in zip(data['support'], data['correct_answer'])]
+
         # tokenize the data
-        inputs = tokenizer(data['correct_answer'] + "\n" + data['support'], padding="max_length", truncation=True, max_length=max_input,
+        inputs = tokenizer(answer_and_context, padding="max_length", truncation=True, max_length=max_input,
                            return_tensors="pt")
         targets = tokenizer(data['question'], padding="max_length", truncation=True, max_length=max_target,
                             return_tensors="pt")
