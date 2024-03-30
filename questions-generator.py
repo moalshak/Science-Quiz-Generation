@@ -49,8 +49,8 @@ def main():
         save_total_limit=2,
         num_train_epochs=32,
         predict_with_generate=True,
-        eval_accumulation_steps=32,
-        fp16=True  # available only with CUDA
+        eval_accumulation_steps=32
+        # fp16=True  # available only with CUDA
     )
 
     trainer = Seq2SeqTrainer(
