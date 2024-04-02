@@ -17,7 +17,7 @@ def main():
     val_data = data['validation']
     test_data = data['test']
 
-    max_input = 1024
+    max_input = 512
     max_target = 128
     batch_size = 8
 

@@ -9,6 +9,7 @@ def train_options_generator():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(device)
 
+
     model = BartForConditionalGeneration.from_pretrained('facebook/bart-base')
     tokenizer = AutoTokenizer.from_pretrained('facebook/bart-base')
 
@@ -16,30 +17,10 @@ def train_options_generator():
     train_data = data['train']
     val_data = data['validation']
 
-    max_input = 1024
+    max_input = 512
     max_target = 128
     batch_size = 36
 
-    # dataset has:
-    # question, distractor3, distractor1, distractor2, correct_answer, support
-    def pre_process_data(data):
-        question_answer_context = [question + "</s><s>" + correct_answer + "</s><s>" + support for
-                                   question, correct_answer, support in
-                                   zip(data['question'], data['correct_answer'], data['support'])]
-
-        # tokenize the data
-        inputs = tokenizer(question_answer_context, padding="max_length", truncation=True, max_length=max_input,
-                           return_tensors="pt")
-        targets = tokenizer(data['distractor1'], data['distractor2'], data['distractor3'], padding="max_length",
-                            truncation=True, max_length=max_target, return_tensors="pt")
-        return {"input_ids": inputs.input_ids, "attention_mask": inputs.attention_mask, "labels": targets.input_ids}
-
-    train_data = train_data.map(pre_process_data, batched=True).shuffle(seed=42)
-    val_data = val_data.map(pre_process_data, batched=True).shuffle(seed=42)
-
-    print(tokenizer.decode(train_data['input_ids'][1], skip_special_tokens=False))
-
-    model.to(device)
     args = Seq2SeqTrainingArguments(
         output_dir="./results_option_generation",
         evaluation_strategy='epoch',
@@ -54,6 +35,53 @@ def train_options_generator():
         eval_accumulation_steps=32,
         # fp16=True  # available only with CUDA
     )
+
+    MODEL_FOLDER = "models/sciq"
+
+    questions_model = BartForConditionalGeneration.from_pretrained(f"./{MODEL_FOLDER}")
+    questions_trainer = Seq2SeqTrainer(
+        questions_model,
+        args,
+        tokenizer=tokenizer,
+    )
+
+    def pre_process_data_question_model(data):
+        # tokenize the data
+        inputs = tokenizer(data['support'], data['correct_answer'], padding="max_length", truncation=True, max_length=max_input, return_tensors="pt")
+        targets = tokenizer(data['question'], padding="max_length", truncation=True, max_length=max_target, return_tensors="pt")
+        return {"input_ids": inputs.input_ids, "attention_mask": inputs.attention_mask, "labels": targets.input_ids}
+
+
+    question_val_data = val_data.map(pre_process_data_question_model, batched=True)
+    val_predictions = questions_trainer.predict(question_val_data, max_length=64)
+    val_generated_questions = tokenizer.batch_decode(val_predictions[0], skip_special_tokens=True)
+    val_data = val_data.add_column("generated_question", val_generated_questions)
+
+    question_train_data = train_data.map(pre_process_data_question_model, batched=True)
+    train_predictions = questions_trainer.predict(question_train_data, max_length=64)
+    train_generated_questions = tokenizer.batch_decode(train_predictions[0], skip_special_tokens=True)
+    train_data = train_data.add_column('generated_question', train_generated_questions)
+
+    # dataset has:
+    # question, distractor3, distractor1, distractor2, correct_answer, support
+    def pre_process_data(data):
+        question_answer_context = [question + "</s><s>" + correct_answer + "</s><s>" + support for
+                                   question, correct_answer, support in
+                                   zip(data['generated_question'], data['correct_answer'], data['support'])]
+
+        # tokenize the data
+        inputs = tokenizer(question_answer_context, padding="max_length", truncation=True, max_length=max_input,
+                           return_tensors="pt")
+        targets = tokenizer(data['distractor1'], data['distractor2'], data['distractor3'], padding="max_length",
+                            truncation=True, max_length=max_target, return_tensors="pt")
+        return {"input_ids": inputs.input_ids, "attention_mask": inputs.attention_mask, "labels": targets.input_ids}
+
+    train_data = train_data.map(pre_process_data, batched=True).shuffle(seed=42)
+    val_data = val_data.map(pre_process_data, batched=True).shuffle(seed=42)
+
+    # print(tokenizer.decode(train_data['input_ids'][1], skip_special_tokens=False))
+
+    model.to(device)
 
     trainer = Seq2SeqTrainer(
         model,
