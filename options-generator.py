@@ -34,8 +34,8 @@ def train_options_generator():
                             truncation=True, max_length=max_target, return_tensors="pt")
         return {"input_ids": inputs.input_ids, "attention_mask": inputs.attention_mask, "labels": targets.input_ids}
 
-    train_data = train_data.map(pre_process_data, batched=True)
-    val_data = val_data.map(pre_process_data, batched=True)
+    train_data = train_data.map(pre_process_data, batched=True).shuffle(seed=42)
+    val_data = val_data.map(pre_process_data, batched=True).shuffle(seed=42)
 
     print(tokenizer.decode(train_data['input_ids'][1], skip_special_tokens=False))
 
