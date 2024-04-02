@@ -161,3 +161,6 @@ cython_debug/
 results/
 .*venv/
 sciq_model_v1/
+sciq
+models/sciq
+.idea

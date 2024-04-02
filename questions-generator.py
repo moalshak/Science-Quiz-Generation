@@ -14,23 +14,21 @@ def main():
 
     data = load_dataset("allenai/sciq")
     train_data = data['train']
-    eval_data = data['test']
-    test_data = data['validation']
+    eval_data = data['validation']
+    test_data = data['test']
 
-    max_input = 512
+    max_input = 1024
     max_target = 128
     batch_size = 8
 
     # dataset has:
     # question, distractor3, distractor1, distractor2, correct_answer, support
     def pre_process_data(data):
-        answer_and_context = [correct_answer + " " + support for support, correct_answer in zip(data['support'], data['correct_answer'])]
+        answer_and_context = [correct_answer + " " + support for correct_answer, support in zip(data['correct_answer'], data['support'])]
 
         # tokenize the data
-        inputs = tokenizer(answer_and_context, padding="max_length", truncation=True, max_length=max_input,
-                           return_tensors="pt")
-        targets = tokenizer(data['question'], padding="max_length", truncation=True, max_length=max_target,
-                            return_tensors="pt")
+        inputs = tokenizer(answer_and_context, padding="max_length", truncation=True, max_length=max_input, return_tensors="pt")
+        targets = tokenizer(data['question'], padding="max_length", truncation=True, max_length=max_target, return_tensors="pt")
         return {"input_ids": inputs.input_ids, "attention_mask": inputs.attention_mask, "labels": targets.input_ids}
 
     train_data = train_data.map(pre_process_data, batched=True).shuffle(seed=42)
@@ -49,8 +47,8 @@ def main():
         save_total_limit=2,
         num_train_epochs=32,
         predict_with_generate=True,
-        eval_accumulation_steps=32
-        # fp16=True  # available only with CUDA
+        eval_accumulation_steps=32,
+        fp16=True  # available only with CUDA
     )
 
     trainer = Seq2SeqTrainer(
@@ -63,7 +61,7 @@ def main():
 
     trainer.train()
     # lets save the model
-    OUT_DIR = "sciq"
+    OUT_DIR = "models/sciq-1024"
     model.save_pretrained(OUT_DIR)
     tokenizer.save_pretrained(OUT_DIR)
 
