@@ -1,12 +1,12 @@
 #!/bin/bash
 
-#SBATCH --time=0-06:00:00
+#SBATCH --time=0-07:00:00
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks=1
 #SBATCH --mem=32GB
-#SBATCH --job-name=questions
-#SBATCH --output=questions.out
+#SBATCH --job-name=options
+#SBATCH --output=options.out
 
 
 source /home3/s3799174/machinelearning/venv/bin/activate
