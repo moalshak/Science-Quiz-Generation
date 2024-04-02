@@ -14,7 +14,7 @@ def main():
 
     data = load_dataset("allenai/sciq")
     train_data = data['train']
-    eval_data = data['validation']
+    val_data = data['validation']
     test_data = data['test']
 
     max_input = 1024
@@ -30,7 +30,7 @@ def main():
         return {"input_ids": inputs.input_ids, "attention_mask": inputs.attention_mask, "labels": targets.input_ids}
 
     train_data = train_data.map(pre_process_data, batched=True).shuffle(seed=42)
-    eval_data = eval_data.map(pre_process_data, batched=True).shuffle(seed=42)
+    val_data = val_data.map(pre_process_data, batched=True).shuffle(seed=42)
     test_data = test_data.map(pre_process_data, batched=True).shuffle(seed=42)
 
     model.to(device)
@@ -53,7 +53,7 @@ def main():
         model,
         args,
         train_dataset=train_data,
-        eval_dataset=eval_data,
+        eval_dataset=val_data,
         tokenizer=tokenizer,
     )
 
