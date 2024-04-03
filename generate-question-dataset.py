@@ -50,9 +50,10 @@ def train_options_generator():
     def add_generated_question(dataset):
         question_data = dataset.map(pre_process_data_question_model, batched=True)
         predictions = questions_trainer.predict(question_data, max_length=64)
-        for idx in range(len(predictions[0])):
-            predictions[0][idx] = [token for token in predictions[0][idx] if token != -100]
-        generated_questions = tokenizer.batch_decode(predictions[0], skip_special_tokens=True)
+        valid_tokens = []
+        for prediction in predictions[0]:
+            valid_tokens.append([token for token in prediction if token != -100])
+        generated_questions = tokenizer.batch_decode(valid_tokens, skip_special_tokens=True)
         return dataset.add_column("generated_question", generated_questions)
 
     data['validation'] = add_generated_question(data['validation'])
