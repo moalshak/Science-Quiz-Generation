@@ -103,6 +103,8 @@ def train_options_generator():
         fp16=True  # available only with CUDA
     )
 
+    tokenizer = AutoTokenizer.from_pretrained('facebook/bart-base')
+
     trainer = Seq2SeqTrainer(
         model,
         args,
