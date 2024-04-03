@@ -33,7 +33,7 @@ def train_options_generator():
         num_train_epochs=32,
         predict_with_generate=True,
         eval_accumulation_steps=32,
-        fp16=True  # available only with CUDA
+        # fp16=True  # available only with CUDA
     )
 
     MODEL_FOLDER = "models/sciq"
@@ -51,14 +51,19 @@ def train_options_generator():
         targets = tokenizer(data['question'], padding="max_length", truncation=True, max_length=max_target, return_tensors="pt")
         return {"input_ids": inputs.input_ids, "attention_mask": inputs.attention_mask, "labels": targets.input_ids}
 
-
+    val_data = val_data.select(range(30))
     question_val_data = val_data.map(pre_process_data_question_model, batched=True)
     val_predictions = questions_trainer.predict(question_val_data, max_length=64)
+    for idx in range(len(val_predictions)):
+        val_predictions[0][idx] = [token for token in val_predictions[0][idx] if token != -100]
     val_generated_questions = tokenizer.batch_decode(val_predictions[0], skip_special_tokens=True)
     val_data = val_data.add_column("generated_question", val_generated_questions)
 
+    train_data = train_data.select(range(30))
     question_train_data = train_data.map(pre_process_data_question_model, batched=True)
     train_predictions = questions_trainer.predict(question_train_data, max_length=64)
+    for idx in range(len(train_predictions)):
+        train_predictions[0][idx] = [token for token in train_predictions[0][idx] if token != -100]
     train_generated_questions = tokenizer.batch_decode(train_predictions[0], skip_special_tokens=True)
     train_data = train_data.add_column('generated_question', train_generated_questions)
 
