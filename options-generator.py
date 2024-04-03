@@ -59,6 +59,8 @@ def train_options_generator():
     val_generated_questions = tokenizer.batch_decode(val_predictions[0], skip_special_tokens=True)
     val_data = val_data.add_column("generated_question", val_generated_questions)
 
+    torch.cuda.empty_cache()
+
     train_data = train_data.select(range(30))
     question_train_data = train_data.map(pre_process_data_question_model, batched=True)
     train_predictions = questions_trainer.predict(question_train_data, max_length=64)
@@ -66,6 +68,8 @@ def train_options_generator():
         train_predictions[0][idx] = [token for token in train_predictions[0][idx] if token != -100]
     train_generated_questions = tokenizer.batch_decode(train_predictions[0], skip_special_tokens=True)
     train_data = train_data.add_column('generated_question', train_generated_questions)
+
+    torch.cuda.empty_cache()
 
     # dataset has:
     # question, distractor3, distractor1, distractor2, correct_answer, support
