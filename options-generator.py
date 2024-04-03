@@ -21,8 +21,8 @@ def train_options_generator():
     max_target = 128
     batch_size = 36
 
-    args = Seq2SeqTrainingArguments(
-        output_dir="./results_option_generation",
+    args1 = Seq2SeqTrainingArguments(
+        output_dir="./results_prediction_question",
         evaluation_strategy='epoch',
         learning_rate=2e-5,
         per_device_train_batch_size=batch_size,
@@ -33,7 +33,7 @@ def train_options_generator():
         num_train_epochs=32,
         predict_with_generate=True,
         eval_accumulation_steps=32,
-        # fp16=True  # available only with CUDA
+        fp16=True  # available only with CUDA
     )
 
     MODEL_FOLDER = "models/sciq"
@@ -41,7 +41,7 @@ def train_options_generator():
     questions_model = BartForConditionalGeneration.from_pretrained(f"./{MODEL_FOLDER}")
     questions_trainer = Seq2SeqTrainer(
         questions_model,
-        args,
+        args1,
         tokenizer=tokenizer,
     )
 
@@ -87,6 +87,21 @@ def train_options_generator():
     # print(tokenizer.decode(train_data['input_ids'][1], skip_special_tokens=False))
 
     model.to(device)
+
+    args = Seq2SeqTrainingArguments(
+        output_dir="./results_option_generation",
+        evaluation_strategy='epoch',
+        learning_rate=2e-5,
+        per_device_train_batch_size=batch_size,
+        per_device_eval_batch_size=batch_size,
+        gradient_accumulation_steps=2,
+        weight_decay=0.01,
+        save_total_limit=2,
+        num_train_epochs=32,
+        predict_with_generate=True,
+        eval_accumulation_steps=32,
+        fp16=True  # available only with CUDA
+    )
 
     trainer = Seq2SeqTrainer(
         model,
