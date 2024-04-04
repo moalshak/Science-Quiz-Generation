@@ -161,6 +161,5 @@ cython_debug/
 results/
 .*venv/
 models/
-dataset/
+datasets/
 .idea
-venv/
