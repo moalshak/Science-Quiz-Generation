@@ -12,7 +12,6 @@ def train_options_generator():
     data = load_from_disk("datasets/generated-questions.hf")
     train_data = data['train']
     val_data = data['validation']
-    print(data)
 
     model = BartForConditionalGeneration.from_pretrained('facebook/bart-base')
     tokenizer = AutoTokenizer.from_pretrained('facebook/bart-base')
