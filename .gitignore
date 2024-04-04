@@ -160,7 +160,7 @@ cython_debug/
 #.idea/
 results/
 .*venv/
-sciq_model_v1/
-sciq
-models/sciq
+models/
+dataset/
 .idea
+venv/
