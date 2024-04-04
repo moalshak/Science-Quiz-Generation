@@ -163,3 +163,6 @@ results/
 models/
 datasets/
 .idea
+sciq/
+sciq*
+results_option_generation/
