@@ -10,3 +10,16 @@ In the [scripts](scripts) directory, you can find the scripts that we used train
 
 In the [project.ipynb](project.ipynb) notebook, you can find the main notebook that contains the code for the project with the models loaded from [Hugging Face Model Hub](https://huggingface.co/nlp-group-6).
 
+
+In the [BARTScore](BARTScore) directory, you can find the code we used to calculate the BARTScore.
+
+
+## Before you start
+
+Before you start, make sure you have `python > 3.10` installed.
+
+To be able to run the notebooks, you need to install the required dependencies. You can do this by running the following command:
+
+```bash
+pip install -r requirements.txt
+```
