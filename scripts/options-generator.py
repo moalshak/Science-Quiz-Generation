@@ -9,7 +9,7 @@ def train_options_generator():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(device)
 
-    data = load_from_disk("datasets/generated-questions.hf")
+    data = load_dataset("nlp-group-6/sciq-with-generated-questions")
     train_data = data['train']
     val_data = data['validation']
 
