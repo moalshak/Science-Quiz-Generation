@@ -4,7 +4,7 @@ Welcome to Group's 6 Science Quiz Generation project. This repository contains t
 
 ## Project Structure
 
-In the [notebooks](notebooks) directory, you can find the Jupyter notebooks that either generate or evaluate our models.
+In the [notebooks](notebooks) directory, you can find the Jupyter notebooks that either train or evaluate our models. The generated-questions-dataset notebook is used to generate questions using the questions model and adding those to the sciq dataset. The resulting dataset is used for training the options1 model.
 
 In the [scripts](scripts) directory, you can find the scripts that we used train the models on HPC.
 
